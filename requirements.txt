@@ -1,0 +1,8 @@
+# Install a PyTorch build that matches the target machine (CPU or its CUDA version) first:
+# https://pytorch.org/get-started/locally/
+Pillow>=10.0
+numpy>=1.26
+matplotlib>=3.8
+scipy>=1.10
+pytorch-ignite>=0.5
+torchvision>=0.18
