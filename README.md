@@ -36,6 +36,8 @@ python generate.py --checkpoint outputs/checkpoints/latest.pt --count 64
 python evaluate.py --checkpoint outputs/checkpoints/latest.pt --num-images 5000
 ```
 
+The planned one-factor learning-rate comparison is configured in `config_trial1.json` and can be run with `python train.py --config config_trial1.json`.
+
 Audit output is written to `outputs/data_audit/`. Training writes `outputs/checkpoints/`, `outputs/samples/`, `outputs/logs/losses.csv`, and the deterministic `outputs/split.json`. Evaluation metrics go to `outputs/evaluation.json`.
 
 To use a different data location (for example, the DataHub download), change `dataset_root` in `config.json`, or make a copy such as `config_datahub.json` and pass `--config config_datahub.json` to each command. The data root should contain the style directories, such as `Impressionism/`, directly or below a parent directory.
