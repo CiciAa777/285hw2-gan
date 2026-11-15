@@ -5,6 +5,3 @@ numpy>=1.26
 matplotlib>=3.8
 scipy>=1.10
 pytorch-ignite>=0.5
-# Choose a torchvision build compatible with the PyTorch and CUDA versions on
-# the target machine; see https://pytorch.org/get-started/locally/.
-torchvision>=0.17
