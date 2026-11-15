@@ -24,6 +24,8 @@ The training and generation scripts use PyTorch and Pillow; metric calculation a
 
 ## Run order
 
+If a DSMLP session ends between epochs, resume from the latest saved checkpoint with `python train.py --resume outputs/checkpoints/latest.pt`. Resume restores the model, optimizers, and random-number-generator state and continues at the next epoch.
+
 From this directory (`hw2`):
 
 ```powershell

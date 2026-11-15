@@ -6,48 +6,48 @@ Train an unconditional GAN on the downloaded WikiArt paintings, generate sample 
 
 ## 1. Inspect the dataset
 
-- [ ] Confirm the dataset root. Current expected path: `hw2/steubk/wikiart/versions/1/`.
-- [ ] Count images by style folder and check for unreadable or non-image files.
-- [ ] Make a contact sheet of random paintings to inspect image quality, aspect ratios, and color modes.
-- [ ] Decide whether to use every style folder. Default: use all style folders for one unconditional model; folder labels are not model inputs.
-- [ ] Record the dataset split seed and held-out evaluation set size.
+- [x] Confirm the dataset root. Current expected path: `hw2/steubk/wikiart/versions/1/`.
+- [x] Count images by style folder and check for unreadable or non-image files.
+- [x] Make a contact sheet of random paintings to inspect image quality, aspect ratios, and color modes.
+- [x] Decide whether to use every style folder. Use all style folders for one unconditional model; folder labels are not model inputs.
+- [x] Record the dataset split seed and held-out evaluation set size.
 
 ### Dataset findings
 
-- Dataset root:
-- Image count after filtering:
-- Number of style folders used:
-- Images per folder (range / notable imbalance):
-- Corrupt or skipped files:
-- Example aspect ratios / image issues:
-- Train and evaluation split:
-- Other notes:
+- Dataset root: `/home/xix015/285hw2-gan/steubk/wikiart/versions/1` (symlink to persistent DSMLP personal storage).
+- Image count after filtering: 81,444 valid 64×64 JPEGs.
+- Number of style folders used: 27.
+- Images per folder (range / notable imbalance): 98–13,060; notable class imbalance, but styles are pooled for unconditional training.
+- Corrupt or skipped files: 0 corrupt; 81,444 discovered and valid.
+- Example aspect ratios / image issues: images were center-cropped/resized to square 64×64 before transfer; source aspect ratios are not retained in the DSMLP copy.
+- Train and evaluation split: seed 42, 77,371 train and 4,073 held out (95% / 5%).
+- Other notes: the 31.4 GB full-resolution archive exceeded DSMLP course-home quota; all paintings are included at model input resolution.
 
 ## 2. Prepare the image pipeline
 
-- [ ] Build a recursive image dataset/loader rooted at the dataset directory. Folder labels can be ignored for unconditional training.
-- [ ] Convert all images to RGB.
-- [ ] Resize/crop to a consistent square resolution. Start with `64 × 64`; consider `128 × 128` only if compute allows.
-- [ ] Normalize channels to `[-1, 1]` to match a generator output layer using `tanh`.
-- [ ] Decide on augmentation. Start with random horizontal flip only if it does not harm the painting content; keep evaluation preprocessing deterministic.
-- [ ] Preview a batch after preprocessing before training.
+- [x] Build a recursive image dataset/loader rooted at the dataset directory. Folder labels can be ignored for unconditional training.
+- [x] Convert all images to RGB.
+- [x] Resize/crop to a consistent square resolution. Start with `64 × 64`; consider `128 × 128` only if compute allows.
+- [x] Normalize channels to `[-1, 1]` to match a generator output layer using `tanh`.
+- [x] Decide on augmentation. Start with random horizontal flip only if it does not harm the painting content; keep evaluation preprocessing deterministic.
+- [x] Preview a batch after preprocessing before training.
 
 ### Preprocessing findings
 
-- Resolution:
-- Resize/crop policy:
-- Augmentations:
-- Normalization:
-- Batch preview observations:
+- Resolution: 64 × 64.
+- Resize/crop policy: source paintings center-cropped/resized to square on local machine; loader also applies deterministic square fit and converts RGB.
+- Augmentations: disabled.
+- Normalization: `[-1, 1]`.
+- Batch preview observations: smoke batch shape `(64, 3, 64, 64)`, values within `[-1, 1]`.
 - Changes needed:
 
 ## 3. Implement a DCGAN baseline
 
-- [ ] Implement a convolutional generator: latent noise → learned projection → upsampling/convolution blocks → RGB image.
-- [ ] Implement a convolutional discriminator: RGB image → downsampling/convolution blocks → real/fake logit.
-- [ ] Use batch normalization in the generator and a `tanh` output for normalized images. Use a sigmoid-free discriminator output when using logits-based binary cross-entropy.
-- [ ] Add DCGAN-style weight initialization and fixed latent vectors for consistent sample grids.
-- [ ] Save model configuration and checkpoints with the run outputs.
+- [x] Implement a convolutional generator: latent noise → learned projection → upsampling/convolution blocks → RGB image.
+- [x] Implement a convolutional discriminator: RGB image → downsampling/convolution blocks → real/fake logit.
+- [x] Use batch normalization in the generator and a `tanh` output for normalized images. Use a sigmoid-free discriminator output when using logits-based binary cross-entropy.
+- [x] Add DCGAN-style weight initialization and fixed latent vectors for consistent sample grids.
+- [x] Save model configuration and checkpoints with the run outputs.
 
 ### Baseline architecture notes
 
@@ -56,7 +56,7 @@ Train an unconditional GAN on the downloaded WikiArt paintings, generate sample 
 - Latent dimension:
 - Loss function:
 - Initialization / normalization details:
-- Implementation issues:
+- Implementation issues: smoke test confirmed finite losses, checkpoint reload, and 64×64 sample-grid generation. The course image's base PyTorch did not support its Blackwell MIG GPU; matched PyTorch 2.9.1+cu128 and torchvision 0.24.1+cu128 are installed in the user's DSMLP environment. Ignite IS/FID batch updates pass.
 
 ## 4. Train the baseline
 
@@ -77,10 +77,10 @@ Train an unconditional GAN on the downloaded WikiArt paintings, generate sample 
 | Generator learning rate | 0.0002 | |
 | Discriminator learning rate | 0.0002 | |
 | Adam betas | (0.5, 0.999) | |
-| Epochs |  | |
+| Epochs | 50 | |
 | D updates per G update | 1 | |
-| Seed |  | |
-| Hardware |  | |
+| Seed | 42 | |
+| Hardware | ECE285 medium GPU, 24 GB MIG slice | |
 
 ### Training findings
 

@@ -5,9 +5,11 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import random
 import time
 from pathlib import Path
 
+import numpy as np
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
@@ -23,6 +25,7 @@ def main() -> None:
     parser.add_argument("--epochs", type=int)
     parser.add_argument("--batch-size", type=int)
     parser.add_argument("--device", default="auto", help="auto, cpu, or a torch device such as cuda:0")
+    parser.add_argument("--resume", type=Path, help="resume from an epoch checkpoint")
     args = parser.parse_args()
     config = load_config(args.config)
     if args.epochs is not None:
@@ -55,14 +58,31 @@ def main() -> None:
     optimizer_d = torch.optim.Adam(discriminator.parameters(), lr=config["learning_rate_d"], betas=(config["adam_beta1"], config["adam_beta2"]))
     criterion = nn.BCEWithLogitsLoss()
     fixed_noise = torch.randn(64, config["latent_dim"], 1, 1, device=device)
+    start_epoch = 1
+    global_step = 0
+    if args.resume is not None:
+        checkpoint = torch.load(args.resume, map_location=device, weights_only=False)
+        generator.load_state_dict(checkpoint["generator"])
+        discriminator.load_state_dict(checkpoint["discriminator"])
+        optimizer_g.load_state_dict(checkpoint["optimizer_g"])
+        optimizer_d.load_state_dict(checkpoint["optimizer_d"])
+        start_epoch = checkpoint["epoch"] + 1
+        global_step = checkpoint.get("global_step", 0)
+        rng = checkpoint.get("rng_state")
+        if rng:
+            random.setstate(rng["python"])
+            np.random.set_state(rng["numpy"])
+            torch.set_rng_state(rng["torch"])
+            if torch.cuda.is_available() and rng.get("cuda") is not None:
+                torch.cuda.set_rng_state_all(rng["cuda"])
+        print(f"Resumed from {args.resume} at epoch {start_epoch}", flush=True)
     (out / "run_config.json").write_text(json.dumps({**config, "dataset_root": str(config["dataset_root"]), "output_dir": str(out), "device": str(device)}, indent=2), encoding="utf-8")
     history_path = out / "logs" / "losses.csv"
     with history_path.open("w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(["epoch", "iteration", "loss_d", "loss_g"])
         start = time.perf_counter()
-        global_step = 0
-        for epoch in range(1, config["epochs"] + 1):
+        for epoch in range(start_epoch, config["epochs"] + 1):
             generator.train()
             discriminator.train()
             total_d = total_g = 0.0
@@ -92,7 +112,7 @@ def main() -> None:
             f.flush()
             avg_d, avg_g = total_d / len(loader), total_g / len(loader)
             elapsed = time.perf_counter() - start
-            print(f"epoch {epoch:03d}/{config['epochs']} | D {avg_d:.4f} | G {avg_g:.4f} | elapsed {elapsed/60:.1f} min")
+            print(f"epoch {epoch:03d}/{config['epochs']} | D {avg_d:.4f} | G {avg_g:.4f} | elapsed {elapsed/60:.1f} min", flush=True)
             if epoch % config["save_every_epochs"] == 0 or epoch == config["epochs"]:
                 generator.eval()
                 with torch.no_grad():
@@ -101,6 +121,12 @@ def main() -> None:
                 checkpoint = {
                     "epoch": epoch, "generator": generator.state_dict(), "discriminator": discriminator.state_dict(),
                     "optimizer_g": optimizer_g.state_dict(), "optimizer_d": optimizer_d.state_dict(),
+                    "global_step": global_step,
+                    "rng_state": {
+                        "python": random.getstate(), "numpy": np.random.get_state(),
+                        "torch": torch.get_rng_state(),
+                        "cuda": torch.cuda.get_rng_state_all() if torch.cuda.is_available() else None,
+                    },
                     "config": {k: v for k, v in config.items() if k in {
                         "image_size", "latent_dim", "generator_channels", "discriminator_channels", "seed"
                     }},
