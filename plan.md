@@ -94,17 +94,19 @@ Train an unconditional GAN on the downloaded WikiArt paintings, generate sample 
 ## 5. Tune a small number of settings
 
 - [x] Establish the baseline before tuning.
-- [ ] Change one factor at a time where possible; keep seeds, split, preprocessing, and evaluation protocol consistent.
-- [ ] Prioritize batch size / learning rate first; test 32 or 128 batch size as memory allows and learning rates such as `0.0001` versus `0.0002`.
+- [x] Change one factor at a time where possible; keep seeds, split, preprocessing, and evaluation protocol consistent.
+- [x] Prioritize batch size / learning rate first; test 32 or 128 batch size as memory allows and learning rates such as `0.0001` versus `0.0002`.
 - [ ] If training is stable and resources allow, compare `64 × 64` with `128 × 128`.
-- [ ] Choose a checkpoint using generated samples and evaluation scores together, not loss alone.
+- [x] Choose a checkpoint using generated samples and evaluation scores together, not loss alone.
 
 ### Experiment log
+
+Trial 1 findings: 50 epochs took 16.9 minutes (60,400 optimizer steps). Final epoch losses were D=0.1165 and G=6.2752. The loss plot, fixed-seed sample grid, checkpoint, and evaluation JSON are in `outputs/trial1_lr_d_1e4/`.
 
 | Run | Change from baseline | Epochs | Best checkpoint | IS | FID | Visual notes |
 |---|---|---:|---|---:|---:|---|
 | Baseline | DCGAN defaults | 50 | `outputs/checkpoints/epoch_050.pt` | 2.525 | 0.0792 | Blurry painterly textures; repeated compositions; D appears dominant late |
-| Trial 1 | Planned: D learning rate 0.0001; all else unchanged | 50 | | | | |
+| Trial 1 | D learning rate 0.0001; all else unchanged | 50 | `outputs/trial1_lr_d_1e4/checkpoints/epoch_050.pt` | 2.684 | 0.0372 | More varied painterly compositions; still blurry, but less repetitive than baseline |
 | Trial 2 | | | | | | |
 | Trial 3 | | | | | | |
 
@@ -119,14 +121,14 @@ Train an unconditional GAN on the downloaded WikiArt paintings, generate sample 
 
 ### Evaluation results
 
-- Selected model/checkpoint: baseline `outputs/checkpoints/epoch_050.pt`.
+- Selected model/checkpoint: Trial 1 `outputs/trial1_lr_d_1e4/checkpoints/epoch_050.pt` (chosen by improved held-out scores and visual comparison).
 - Metric implementation and versions: PyTorch-Ignite 0.5.5; PyTorch 2.9.1+cu128; torchvision 0.24.1+cu128.
 - Real evaluation images: 4,073 held-out images.
 - Generated images: 4,073 for metrics; 64 for the saved visual sample set.
 - Resize / normalization details: model output/real images converted to RGB `[0,1]`, resized to 299×299 for Ignite Inception metrics.
-- Inception Score (mean ± std, if available): 2.525 (Ignite returned a scalar for this run).
-- FID: 0.0792 (Ignite default torchvision Inception/logit feature implementation).
-- Qualitative observations: metric values are recorded for comparisons under this exact implementation/protocol; visual quality is still blurry and repetitive in places.
+- Inception Score (mean ± std, if available): 2.684 (Ignite returned a scalar for this run).
+- FID: 0.0372 (Ignite default torchvision Inception/logit feature implementation).
+- Qualitative observations: Trial 1 improves on baseline IS (2.525) and FID (0.0792) under the same protocol; its samples show more varied painterly compositions, with blur and artifacts remaining.
 - Limitations / caveats: Ignite's default FID implementation differs from `pytorch-fid`; do not compare the numeric value directly with scores from other FID implementations. The 64×64 input resolution limits fine detail.
 
 ## 7. Write the two-page report
