@@ -31,6 +31,7 @@ From this directory (`hw2`):
 ```powershell
 python inspect_data.py
 python train.py
+python plot_losses.py
 python generate.py --checkpoint outputs/checkpoints/latest.pt --count 64
 python evaluate.py --checkpoint outputs/checkpoints/latest.pt --num-images 5000
 ```
