@@ -72,15 +72,19 @@ def main() -> None:
         if rng:
             random.setstate(rng["python"])
             np.random.set_state(rng["numpy"])
-            torch.set_rng_state(rng["torch"])
+            torch.set_rng_state(rng["torch"].cpu())
             if torch.cuda.is_available() and rng.get("cuda") is not None:
-                torch.cuda.set_rng_state_all(rng["cuda"])
+                torch.cuda.set_rng_state_all([state.cpu() for state in rng["cuda"]])
+        if checkpoint.get("fixed_noise") is not None:
+            fixed_noise = checkpoint["fixed_noise"].to(device)
         print(f"Resumed from {args.resume} at epoch {start_epoch}", flush=True)
     (out / "run_config.json").write_text(json.dumps({**config, "dataset_root": str(config["dataset_root"]), "output_dir": str(out), "device": str(device)}, indent=2), encoding="utf-8")
     history_path = out / "logs" / "losses.csv"
-    with history_path.open("w", newline="", encoding="utf-8") as f:
+    log_mode = "a" if args.resume is not None and history_path.exists() else "w"
+    with history_path.open(log_mode, newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
-        writer.writerow(["epoch", "iteration", "loss_d", "loss_g"])
+        if log_mode == "w" or history_path.stat().st_size == 0:
+            writer.writerow(["epoch", "iteration", "loss_d", "loss_g"])
         start = time.perf_counter()
         for epoch in range(start_epoch, config["epochs"] + 1):
             generator.train()
@@ -122,6 +126,7 @@ def main() -> None:
                     "epoch": epoch, "generator": generator.state_dict(), "discriminator": discriminator.state_dict(),
                     "optimizer_g": optimizer_g.state_dict(), "optimizer_d": optimizer_d.state_dict(),
                     "global_step": global_step,
+                    "fixed_noise": fixed_noise.detach().cpu(),
                     "rng_state": {
                         "python": random.getstate(), "numpy": np.random.get_state(),
                         "torch": torch.get_rng_state(),
