@@ -136,7 +136,8 @@ Trial 1 findings: 50 epochs took 16.9 minutes (60,400 optimizer steps). Final ep
 - Trial 3 GPU outcome on 2026-11-16: the generic small-GPU pod `xix015-2094005` was assigned to `its-dsmlp-n06.ucsd.edu` (GTX 1080 Ti) after about 14 minutes queued, then failed before the first training step. The installed user-site PyTorch 2.9.1+cu128 supports only `sm_70+`, but this GPU is `sm_61` (`no kernel image is available`). The failed pod was deleted. The DSMLP image's base stack is PyTorch 2.2.1+cu121 / torchvision 0.17.1+cu121; Trial 3's launcher now disables user-site packages and checks a CUDA kernel before training.
 - Training start time / duration: Trial 2 CPU training process started 2026-11-16 11:26 PST; 3/50 epochs completed at the latest progress check.
 - Final epoch losses, best checkpoint, IS, FID, visual comparison, and interpretation: Pending.
-- Current status: Trial 2 is running on CPU in `xix015-2093010`. Trial 3's first small-GPU pod failed due to GTX 1080 Ti/PyTorch architecture incompatibility and was deleted; a base-PyTorch CUDA-compatible retry is prepared.
+- Trial 3 compatibility retry on 2026-11-16 12:22 PST: submitted `xix015-2155027` after switching its isolated venv to the image's base PyTorch 2.2.1+cu121 / torchvision 0.17.1+cu121 (user-site packages disabled) and adding a CUDA kernel preflight. It is Pending on the generic small-GPU class; scheduler currently reports both matching nodes lack a free GPU.
+- Current status: Trial 2 is running on CPU in `xix015-2093010` with 3/50 epochs logged. Trial 3 is queued as `xix015-2155027`; the corrected stack will be checked for GTX 1080 Ti compatibility before training proceeds.
 
 ## 6. Generate final samples and evaluate
 
