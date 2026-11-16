@@ -107,8 +107,21 @@ Trial 1 findings: 50 epochs took 16.9 minutes (60,400 optimizer steps). Final ep
 |---|---|---:|---|---:|---:|---|
 | Baseline | DCGAN defaults | 50 | `outputs/checkpoints/epoch_050.pt` | 2.525 | 0.0792 | Blurry painterly textures; repeated compositions; D appears dominant late |
 | Trial 1 | D learning rate 0.0001; all else unchanged | 50 | `outputs/trial1_lr_d_1e4/checkpoints/epoch_050.pt` | 2.684 | 0.0372 | More varied painterly compositions; still blurry, but less repetitive than baseline |
-| Trial 2 | | | | | | |
-| Trial 3 | | | | | | |
+| Trial 2 | D learning rate 0.00005; all else unchanged from Trial 1 | Planned: 50 | Pending | Pending | Pending | Pending |
+| Trial 3 | One-factor change selected after reviewing Trial 2 | TBD | Pending | Pending | Pending | Pending |
+
+### Trial 2 pre-run record
+
+- Config: `config_trial2.json`; output directory: `outputs/trial2_lr_d_5e5/`.
+- Hypothesis: reducing D's learning rate from 1e-4 to 5e-5 may further reduce discriminator dominance and improve sample diversity/metrics; it may also weaken D too much.
+- Controlled variables: seed 42, same sorted-file 95/5 split, 64x64, batch 64, 50 epochs, latent dimension 100, G learning rate 2e-4, Adam betas (0.5, 0.999), no horizontal flip, and the same Ignite evaluation protocol.
+- Submitted: 2026-11-15 16:11 PST. The scheduler queued the pod for about 79 minutes, then assigned it to `its-dsmlp-n05.ucsd.edu` at 17:30 PST.
+- Launch outcome: The interactive DSMLP stream failed with `tls: bad record MAC` immediately after the container became active; DSMLP deleted pod `xix015-17520` before a training command was run. This was a launch failure, not a Trial 2 training result.
+- Retry on 2026-11-16: SSH reached the UCSD Duo notice but the connection reset before launch. No Trial 2 training has run yet.
+- Retry 2 on 2026-11-16 09:35 PST: Duo authentication succeeded; DSMLP submitted job `xix015-1982700`, which is currently queued for GPU allocation.
+- Training start time / duration: Pending.
+- Final epoch losses, best checkpoint, IS, FID, visual comparison, and interpretation: Pending.
+- Current status: Configuration prepared; job `xix015-1982700` is queued for a GPU. Trial 2 has not started.
 
 ## 6. Generate final samples and evaluate
 
