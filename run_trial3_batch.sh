@@ -32,6 +32,9 @@ if [[ ! -x ../.venv_trial3/bin/python ]]; then
   python -m venv --system-site-packages ../.venv_trial3
 fi
 source ../.venv_trial3/bin/activate
+# Use the image's PyTorch 2.2/CUDA 12.1 build, which supports the small
+# Pascal-class GTX 1080 Ti; ignore the newer user-site PyTorch 2.9 build.
+export PYTHONNOUSERSITE=1
 python -m pip install -r requirements.txt
 
 python - <<'PY'
@@ -43,6 +46,10 @@ print("CUDA available:", torch.cuda.is_available())
 if not torch.cuda.is_available():
     raise SystemExit("CUDA is not available in this pod; stopping before training")
 print("GPU:", torch.cuda.get_device_name(0))
+print("GPU capability:", torch.cuda.get_device_capability(0))
+torch.randn(64, device="cuda").normal_()
+torch.cuda.synchronize()
+print("CUDA kernel smoke check: passed")
 PY
 
 python -u train.py --config "$RUNTIME_CONFIG" --device cuda:0

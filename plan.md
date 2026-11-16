@@ -131,10 +131,12 @@ Trial 1 findings: 50 epochs took 16.9 minutes (60,400 optimizer steps). Final ep
 - Updated both launch scripts to generate runtime configs with container-visible absolute dataset/output paths and separate per-trial virtual environments, avoiding concurrent pip changes to the same environment.
 - CPU run plan: preserve Trial 2's 50 epochs and hyperparameters; run `train.py --device cpu` with 4 CPUs and 16 GB RAM. Set the DSMLP batch deadline to 12 hours. CPU timing and evaluation remain to be measured.
 - First corrected CPU submission on 2026-11-16 11:25 PST: pod `xix015-2093010` reached CPU node `its-dsmlp-n28.ucsd.edu`, passed the container-path check, and started `train.py --device cpu`. It requests 4 CPU cores/16 GB RAM and has a 12-hour active deadline. No epoch has completed yet; runtime is being measured.
-- Trial 3 GPU submission on 2026-11-16 11:26 PST: pod `xix015-2094005` was submitted with the generic small-GPU selector, 4 CPU cores/16 GB RAM, and `run_trial3_batch.sh`. It is Pending; initial scheduler events report both matching small-GPU nodes lack a free GPU.
-- Training start time / duration: Trial 2 CPU training process started 2026-11-16 11:26 PST; first epoch completion pending.
+- Trial 3 GPU submission on 2026-11-16 11:26 PST: pod `xix015-2094005` was submitted with the generic small-GPU selector, 4 CPU cores/16 GB RAM, and `run_trial3_batch.sh`. It was initially Pending; the scheduler later placed it on a matching node.
+- Trial 2 CPU progress check on 2026-11-16 12:16 PST: training is active on CPU node `its-dsmlp-n28.ucsd.edu`, with 3/50 epochs complete after 43.3 minutes. Epoch losses: (1) D=1.7212, G=1.5513; (2) D=1.3424, G=0.8553; (3) D=1.3957, G=0.7743. Current average is about 14.4 minutes/epoch; 50-epoch training may take about 12 hours before evaluation, near the pod's 12-hour deadline.
+- Trial 3 GPU outcome on 2026-11-16: the generic small-GPU pod `xix015-2094005` was assigned to `its-dsmlp-n06.ucsd.edu` (GTX 1080 Ti) after about 14 minutes queued, then failed before the first training step. The installed user-site PyTorch 2.9.1+cu128 supports only `sm_70+`, but this GPU is `sm_61` (`no kernel image is available`). The failed pod was deleted. The DSMLP image's base stack is PyTorch 2.2.1+cu121 / torchvision 0.17.1+cu121; Trial 3's launcher now disables user-site packages and checks a CUDA kernel before training.
+- Training start time / duration: Trial 2 CPU training process started 2026-11-16 11:26 PST; 3/50 epochs completed at the latest progress check.
 - Final epoch losses, best checkpoint, IS, FID, visual comparison, and interpretation: Pending.
-- Current status: Trial 2 is running on CPU in `xix015-2093010`. Trial 3 is queued for a small GPU as `xix015-2094005`. Both now use container-visible dataset/output paths and separate virtual environments.
+- Current status: Trial 2 is running on CPU in `xix015-2093010`. Trial 3's first small-GPU pod failed due to GTX 1080 Ti/PyTorch architecture incompatibility and was deleted; a base-PyTorch CUDA-compatible retry is prepared.
 
 ## 6. Generate final samples and evaluate
 
