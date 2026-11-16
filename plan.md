@@ -119,9 +119,10 @@ Trial 1 findings: 50 epochs took 16.9 minutes (60,400 optimizer steps). Final ep
 - Launch outcome: The interactive DSMLP stream failed with `tls: bad record MAC` immediately after the container became active; DSMLP deleted pod `xix015-17520` before a training command was run. This was a launch failure, not a Trial 2 training result.
 - Retry on 2026-11-16: SSH reached the UCSD Duo notice but the connection reset before launch. No Trial 2 training has run yet.
 - Retry 2 on 2026-11-16 09:35 PST: Duo authentication succeeded; DSMLP submitted job `xix015-1982700`. It remained queued because both eligible GPU slots were occupied, then was canceled at 09:58 PST at the user's request so a DataHub-launched session can be used instead.
+- Batch-mode attempt on 2026-11-16 10:08 PST: `-B` submitted pod `xix015-2010299` and returned without waiting in the foreground. The batch command then stopped before training because the container did not have the old `../.venv/bin/activate` path. No training ran in this attempt. Use `run_trial2_batch.sh` to create/reuse a venv inside the container and verify CUDA before training.
 - Training start time / duration: Pending.
 - Final epoch losses, best checkpoint, IS, FID, visual comparison, and interpretation: Pending.
-- Current status: No CLI GPU job is active. Trial 2 has not started; the user may launch the ECE285 GPU environment from DataHub UI.
+- Current status: No CLI GPU job is active. Trial 2 has not started; the batch-mode retry script is prepared but not yet submitted.
 
 ## 6. Generate final samples and evaluate
 
