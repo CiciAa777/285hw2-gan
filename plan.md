@@ -118,10 +118,10 @@ Trial 1 findings: 50 epochs took 16.9 minutes (60,400 optimizer steps). Final ep
 - Submitted: 2026-11-15 16:11 PST. The scheduler queued the pod for about 79 minutes, then assigned it to `its-dsmlp-n05.ucsd.edu` at 17:30 PST.
 - Launch outcome: The interactive DSMLP stream failed with `tls: bad record MAC` immediately after the container became active; DSMLP deleted pod `xix015-17520` before a training command was run. This was a launch failure, not a Trial 2 training result.
 - Retry on 2026-11-16: SSH reached the UCSD Duo notice but the connection reset before launch. No Trial 2 training has run yet.
-- Retry 2 on 2026-11-16 09:35 PST: Duo authentication succeeded; DSMLP submitted job `xix015-1982700`, which is currently queued for GPU allocation.
+- Retry 2 on 2026-11-16 09:35 PST: Duo authentication succeeded; DSMLP submitted job `xix015-1982700`. It remained queued because both eligible GPU slots were occupied, then was canceled at 09:58 PST at the user's request so a DataHub-launched session can be used instead.
 - Training start time / duration: Pending.
 - Final epoch losses, best checkpoint, IS, FID, visual comparison, and interpretation: Pending.
-- Current status: Configuration prepared; job `xix015-1982700` is queued for a GPU. Trial 2 has not started.
+- Current status: No CLI GPU job is active. Trial 2 has not started; the user may launch the ECE285 GPU environment from DataHub UI.
 
 ## 6. Generate final samples and evaluate
 
