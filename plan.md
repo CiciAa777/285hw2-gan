@@ -130,9 +130,11 @@ Trial 1 findings: 50 epochs took 16.9 minutes (60,400 optimizer steps). Final ep
 - Workspace diagnostic on 2026-11-16: confirmed the dataset is visible inside pods at `/home/xix015/private/285hw2-gan/wikiart/versions/1`. The queued first Trial 3 pod `xix015-2087049` was deleted before scheduling to avoid running its stale path configuration.
 - Updated both launch scripts to generate runtime configs with container-visible absolute dataset/output paths and separate per-trial virtual environments, avoiding concurrent pip changes to the same environment.
 - CPU run plan: preserve Trial 2's 50 epochs and hyperparameters; run `train.py --device cpu` with 4 CPUs and 16 GB RAM. Set the DSMLP batch deadline to 12 hours. CPU timing and evaluation remain to be measured.
-- Training start time / duration: Pending corrected batch submissions.
+- First corrected CPU submission on 2026-11-16 11:25 PST: pod `xix015-2093010` reached CPU node `its-dsmlp-n28.ucsd.edu`, passed the container-path check, and started `train.py --device cpu`. It requests 4 CPU cores/16 GB RAM and has a 12-hour active deadline. No epoch has completed yet; runtime is being measured.
+- Trial 3 GPU submission on 2026-11-16 11:26 PST: pod `xix015-2094005` was submitted with the generic small-GPU selector, 4 CPU cores/16 GB RAM, and `run_trial3_batch.sh`. It is Pending; initial scheduler events report both matching small-GPU nodes lack a free GPU.
+- Training start time / duration: Trial 2 CPU training process started 2026-11-16 11:26 PST; first epoch completion pending.
 - Final epoch losses, best checkpoint, IS, FID, visual comparison, and interpretation: Pending.
-- Current status: Corrected CPU Trial 2 and small-GPU Trial 3 launchers are ready for resubmission after fixing the container dataset path.
+- Current status: Trial 2 is running on CPU in `xix015-2093010`. Trial 3 is queued for a small GPU as `xix015-2094005`. Both now use container-visible dataset/output paths and separate virtual environments.
 
 ## 6. Generate final samples and evaluate
 
