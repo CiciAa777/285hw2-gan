@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-cd "$HOME/285hw2-gan/project"
+cd "$HOME/private/285hw2-gan/project"
 OUTPUT_DIR="outputs/trial2_lr_d_5e5"
 mkdir -p "$OUTPUT_DIR"
 exec > >(tee -a "$OUTPUT_DIR/batch_console.log") 2>&1
