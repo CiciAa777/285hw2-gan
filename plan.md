@@ -108,7 +108,7 @@ Trial 1 findings: 50 epochs took 16.9 minutes (60,400 optimizer steps). Final ep
 | Baseline | DCGAN defaults | 50 | `outputs/checkpoints/epoch_050.pt` | 2.525 | 0.0792 | Blurry painterly textures; repeated compositions; D appears dominant late |
 | Trial 1 | D learning rate 0.0001; all else unchanged | 50 | `outputs/trial1_lr_d_1e4/checkpoints/epoch_050.pt` | 2.684 | 0.0372 | More varied painterly compositions; still blurry, but less repetitive than baseline |
 | Trial 2 | D learning rate 0.00005; all else unchanged from Trial 1 | Planned: 50 | Pending | Pending | Pending | Pending |
-| Trial 3 | One-factor change selected after reviewing Trial 2 | TBD | Pending | Pending | Pending | Pending |
+| Trial 3 | Batch size 32; all other settings match Trial 2 | Planned: 50 | Pending | Pending | Pending | Pending |
 
 ### Trial 2 pre-run record
 
@@ -124,10 +124,11 @@ Trial 1 findings: 50 epochs took 16.9 minutes (60,400 optimizer steps). Final ep
 - GPU targeting check on 2026-11-16: a dry run with the intended ECE285 course workspace and `2025.1-stable` image produced the correct resource request. An A5000-specific batch pod (`xix015-2025586`) was then submitted, but the scheduler found no node matching both `gpu-class=small` and `gputype=a5000`; it was deleted. The status page showed some A5000 capacity cluster-wide, but that did not make it eligible under the small-GPU selector.
 - Generic small-GPU batch on 2026-11-16 10:24 PST: submitted `xix015-2027169` with `-B -g 1 -c 8 -m 16 -W ECE285_FA26_002`, the course's `2025.1-stable` image, and `run_trial2_batch.sh`. It initially waited with 2 eligible small-GPU nodes lacking capacity, then the scheduler placed it on `its-dsmlp-n06.ucsd.edu` after about 7 minutes. The script exited before training because the repository is mounted in the container under `$HOME/private/285hw2-gan/project`; its earlier path was wrong. This confirms the generic small-GPU request can be scheduled even though the status-page snapshot showed the 1080 Ti nodes full.
 - CPU-only workspace diagnostic on 2026-11-16 10:40 PST: confirmed the repo and batch script are visible at `/home/xix015/private/285hw2-gan/project` inside a course pod. Corrected `run_trial2_batch.sh` to use this mounted path before resubmitting Trial 2.
-- Corrected small-GPU retry on 2026-11-16 10:42 PST: removed the failed and diagnostic pods, pulled the path fix from GitHub, and submitted `xix015-2048363` with the same generic small-GPU request. It is Pending at the latest check; no training has started yet.
-- Training start time / duration: Pending.
+- Corrected small-GPU retry on 2026-11-16 10:42 PST: removed the failed and diagnostic pods, pulled the path fix from GitHub, and submitted `xix015-2048363` with the same generic small-GPU request. It remained Pending after 32 minutes with two matching nodes reporting insufficient GPU capacity. Canceled this Trial 2 GPU wait when switching Trial 2 to CPU.
+- CPU run plan: preserve Trial 2's 50 epochs and hyperparameters; run `train.py --device cpu` with 4 CPUs and 16 GB RAM. Use a separate venv and output console log so it can run alongside Trial 3 without package-install conflicts. Set the DSMLP batch deadline to 12 hours. CPU timing and evaluation remain to be measured.
+- Training start time / duration: Pending CPU job submission.
 - Final epoch losses, best checkpoint, IS, FID, visual comparison, and interpretation: Pending.
-- Current status: Trial 2 has not started. Corrected small-GPU batch pod `xix015-2048363` is pending for scheduler placement.
+- Current status: Preparing a CPU batch for Trial 2 and a generic small-GPU batch for Trial 3. Trial 3 changes only batch size from 64 to 32 relative to Trial 2 (`config_trial3.json`, output `outputs/trial3_batch32/`). This parameter was selected before Trial 2 results were available to allow the GPU queue to proceed in parallel.
 
 ## 6. Generate final samples and evaluate
 
