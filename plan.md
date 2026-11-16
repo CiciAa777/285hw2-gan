@@ -120,9 +120,12 @@ Trial 1 findings: 50 epochs took 16.9 minutes (60,400 optimizer steps). Final ep
 - Retry on 2026-11-16: SSH reached the UCSD Duo notice but the connection reset before launch. No Trial 2 training has run yet.
 - Retry 2 on 2026-11-16 09:35 PST: Duo authentication succeeded; DSMLP submitted job `xix015-1982700`. It remained queued because both eligible GPU slots were occupied, then was canceled at 09:58 PST at the user's request so a DataHub-launched session can be used instead.
 - Batch-mode attempt on 2026-11-16 10:08 PST: `-B` submitted pod `xix015-2010299` and returned without waiting in the foreground. The batch command then stopped before training because the container did not have the old `../.venv/bin/activate` path. No training ran in this attempt. Use `run_trial2_batch.sh` to create/reuse a venv inside the container and verify CUDA before training.
+- Batch-mode retry on 2026-11-16: pod `xix015-2013530` was rejected by the admission webhook because the completed pod from the earlier attempt still counted against the GPU quota. The completed pod was deleted; no training ran.
+- GPU targeting check on 2026-11-16: a dry run with the intended ECE285 course workspace and `2025.1-stable` image produced the correct resource request. An A5000-specific batch pod (`xix015-2025586`) was then submitted, but the scheduler found no node matching both `gpu-class=small` and `gputype=a5000`; it was deleted. The status page showed some A5000 capacity cluster-wide, but that did not make it eligible under the small-GPU selector.
+- Generic GPU batch retry on 2026-11-16 10:24 PST: submitted `xix015-2027169` with `-B -g 1 -c 8 -m 16 -W ECE285_FA26_002`, the course's `2025.1-stable` image, and `run_trial2_batch.sh`. It is `Pending`; scheduler events say 2 eligible small-GPU nodes currently have insufficient GPU capacity. `-B` returns immediately and Kubernetes retries scheduling while it remains pending.
 - Training start time / duration: Pending.
 - Final epoch losses, best checkpoint, IS, FID, visual comparison, and interpretation: Pending.
-- Current status: No CLI GPU job is active. Trial 2 has not started; the batch-mode retry script is prepared but not yet submitted.
+- Current status: Trial 2 has not started. One generic small-GPU batch job (`xix015-2027169`) is pending for scheduler placement; no duplicate jobs are queued.
 
 ## 6. Generate final samples and evaluate
 
