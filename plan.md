@@ -124,9 +124,10 @@ Trial 1 findings: 50 epochs took 16.9 minutes (60,400 optimizer steps). Final ep
 - GPU targeting check on 2026-11-16: a dry run with the intended ECE285 course workspace and `2025.1-stable` image produced the correct resource request. An A5000-specific batch pod (`xix015-2025586`) was then submitted, but the scheduler found no node matching both `gpu-class=small` and `gputype=a5000`; it was deleted. The status page showed some A5000 capacity cluster-wide, but that did not make it eligible under the small-GPU selector.
 - Generic small-GPU batch on 2026-11-16 10:24 PST: submitted `xix015-2027169` with `-B -g 1 -c 8 -m 16 -W ECE285_FA26_002`, the course's `2025.1-stable` image, and `run_trial2_batch.sh`. It initially waited with 2 eligible small-GPU nodes lacking capacity, then the scheduler placed it on `its-dsmlp-n06.ucsd.edu` after about 7 minutes. The script exited before training because the repository is mounted in the container under `$HOME/private/285hw2-gan/project`; its earlier path was wrong. This confirms the generic small-GPU request can be scheduled even though the status-page snapshot showed the 1080 Ti nodes full.
 - CPU-only workspace diagnostic on 2026-11-16 10:40 PST: confirmed the repo and batch script are visible at `/home/xix015/private/285hw2-gan/project` inside a course pod. Corrected `run_trial2_batch.sh` to use this mounted path before resubmitting Trial 2.
+- Corrected small-GPU retry on 2026-11-16 10:42 PST: removed the failed and diagnostic pods, pulled the path fix from GitHub, and submitted `xix015-2048363` with the same generic small-GPU request. It is Pending at the latest check; no training has started yet.
 - Training start time / duration: Pending.
 - Final epoch losses, best checkpoint, IS, FID, visual comparison, and interpretation: Pending.
-- Current status: Trial 2 has not started. The first small-GPU batch pod reached a GPU but failed on the wrong repo path; the batch script path is corrected and ready for one retry.
+- Current status: Trial 2 has not started. Corrected small-GPU batch pod `xix015-2048363` is pending for scheduler placement.
 
 ## 6. Generate final samples and evaluate
 
