@@ -49,6 +49,9 @@ def main() -> None:
     )
     if len(loader) == 0:
         raise ValueError("DataLoader has no full batches; reduce batch_size or check the dataset")
+    generator_updates_per_discriminator = int(config.get("generator_updates_per_discriminator", 1))
+    if generator_updates_per_discriminator < 1:
+        raise ValueError("generator_updates_per_discriminator must be at least 1")
 
     generator = Generator(config["latent_dim"], config["image_size"], config["generator_channels"]).to(device)
     discriminator = Discriminator(config["image_size"], config["discriminator_channels"]).to(device)
@@ -103,16 +106,20 @@ def main() -> None:
                 loss_d.backward()
                 optimizer_d.step()
 
-                optimizer_g.zero_grad(set_to_none=True)
-                fake = generator(torch.randn(batch, config["latent_dim"], 1, 1, device=device))
-                loss_g = criterion(discriminator(fake), real_labels)
-                loss_g.backward()
-                optimizer_g.step()
+                loss_g_total = 0.0
+                for _ in range(generator_updates_per_discriminator):
+                    optimizer_g.zero_grad(set_to_none=True)
+                    fake = generator(torch.randn(batch, config["latent_dim"], 1, 1, device=device))
+                    loss_g = criterion(discriminator(fake), real_labels)
+                    loss_g.backward()
+                    optimizer_g.step()
+                    loss_g_total += loss_g.item()
+                mean_loss_g = loss_g_total / generator_updates_per_discriminator
 
                 global_step += 1
                 total_d += loss_d.item()
-                total_g += loss_g.item()
-                writer.writerow([epoch, global_step, loss_d.item(), loss_g.item()])
+                total_g += mean_loss_g
+                writer.writerow([epoch, global_step, loss_d.item(), mean_loss_g])
             f.flush()
             avg_d, avg_g = total_d / len(loader), total_g / len(loader)
             elapsed = time.perf_counter() - start
