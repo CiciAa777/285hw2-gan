@@ -108,9 +108,9 @@ Trial 1 findings: 50 epochs took 16.9 minutes (60,400 optimizer steps). Final ep
 | Baseline | DCGAN defaults | 50 | `outputs/checkpoints/epoch_050.pt` | 2.525 | 0.0792 | Blurry painterly textures; repeated compositions; D appears dominant late |
 | Trial 1 | D learning rate 0.0001; all else unchanged | 50 | `outputs/trial1_lr_d_1e4/checkpoints/epoch_050.pt` | 2.684 | 0.0372 | More varied painterly compositions; still blurry, but less repetitive than baseline |
 | Trial 2 | D learning rate 0.00005; all else unchanged from Trial 1 | 50 | `outputs/trial2_lr_d_5e5/checkpoints/epoch_050.pt` | 2.951 | 0.0424 | Better IS than Trial 1; FID slightly worse; inspect grid alongside metrics |
-| Trial 3 | Batch size 32; all other settings match Trial 2 | 50 | `outputs/trial3_batch32/checkpoints/epoch_050.pt` | 2.118 | 0.1165 | Worse than Trial 2; losses indicate D dominance; inspect grid |
-| Trial 4 | 2 generator updates per 1 discriminator update; all other settings match Trial 3 | 50 | `outputs/trial4_g2d1/checkpoints/epoch_050.pt` | 2.807 | 0.1631 | Better IS than Trial 3, but much worse FID than Trial 2; repeated motifs |
-| Trial 5 | Spectral normalization on D only; same settings as Trial 2 | Planned: 50 | Pending | Pending | Pending | Regularization test; target completion within about 40 minutes |
+| Trial 3 | Batch size 32; all other settings match Trial 2 | 50 | Removed after archiving evidence to `results/trial3_batch32/` | 2.118 | 0.1165 | Repetitive green/gray motifs; worse than Trial 2 |
+| Trial 4 | 2 generator updates per 1 discriminator update; all other settings match Trial 3 | 50 | Removed after archiving evidence to `results/trial4_g2d1/` | 2.807 | 0.1631 | Higher IS than Trial 3, but worse FID; several repeated motifs |
+| Trial 5 | Spectral normalization on D only; same settings as Trial 2 | Running: 50 | `outputs/trial5_sn_d/checkpoints/` (saving every 10 epochs) | Pending | Pending | Regularization test; medium-class GPU |
 | Trial 5 | Spectral normalization on D only; parent chosen from Trials 3-4 | Planned: 50 | Pending | Pending | Pending | Regularization/stability experiment |
 | Trial 6 | Increase G width from 64 to 96 channels; D unchanged; parent selected by results | Planned: 50 | Pending | Pending | Pending | Generator capacity experiment |
 | Trial 7 | Change G hidden activation from ReLU to LeakyReLU(0.2); parent selected by results | Planned: 50 | Pending | Pending | Pending | Activation experiment |
@@ -175,8 +175,9 @@ Keep the 64x64 data, train/evaluation split, seed, latent size, optimizer settin
 - Trial 4 resumed 2026-11-16 about 21:12 PST in pod `xix015-2829602` on a medium-class RTX A5000 node. CUDA preflight passed and it loaded `latest.pt` at epoch 30. Epoch 40 saved successfully; the run completed without further quota errors.
 - Trial 4 final training result: 50/50 epochs; final losses D=0.1451, G=6.1784. The resumed 20 epochs took 13.2 minutes; total run elapsed time, including the failed attempt and evaluation, was about 49 minutes.
 - Trial 4 evaluation: Ignite 0.5.5, 4,073 real and 4,073 generated images at 299x299; IS=2.807405, FID=0.163122. Relative to Trial 3, IS improved (2.118 to 2.807) but FID worsened (0.1165 to 0.1631). The generated grid has repeated visual motifs, so the 2:1 G:D update ratio did not resolve repetition. Trial 2 remains the best overall score pair (IS=2.951, FID=0.0424); Trial 1 still has the lowest FID (0.0372).
-- Trial 2-4 report evidence (resolved configs, per-step losses, loss plots, evaluation JSONs, and sample grids) is archived in `results/` and pushed to GitHub. Large checkpoints are excluded.
-- Current status: Trials 2-4 training/evaluation are complete. Keep Trial 2's final checkpoint as the current model candidate. One more regularization experiment (Trial 5 with spectral normalization on D, matching Trial 2 settings) is the best next use of the remaining time; defer width, activation, and depth experiments if the 40-minute limit is strict.
+- Trial 2-4 report evidence (resolved configs, per-step losses, loss plots, evaluation JSONs, and sample grids) is archived in `results/` and pushed to GitHub. Removed the backed-up Trial 3 and Trial 4 output folders from DSMLP; retained Trial 2's epoch-50 checkpoint as the current model candidate. The outputs directory is now about 91 MB before Trial 5.
+- Trial 5 launch: pod `xix015-2870973` on a medium-class RTX A5000; batch size 64, D learning rate 5e-5, one G update per D update, and spectral normalization on all D convolution layers. It differs from Trial 2 only by D spectral normalization. PyTorch 2.9.1+cu128 passed CUDA preflight; output directory was about 2.7 MB at startup.
+- Current status: Trial 5 is running. Its full training and evaluation is expected to take about 30-40 minutes; monitor checkpoint writes and quota before planning any more runs.
 
 ## 6. Generate final samples and evaluate
 
