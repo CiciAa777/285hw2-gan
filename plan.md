@@ -192,39 +192,40 @@ Keep the 64x64 data, train/evaluation split, seed, latent size, optimizer settin
 
 ### Evaluation results
 
-- Selected model/checkpoint: Trial 1 `outputs/trial1_lr_d_1e4/checkpoints/epoch_050.pt` (chosen by improved held-out scores and visual comparison).
+- Selected report example/checkpoint: Trial 2 `outputs/trial2_lr_d_5e5/checkpoints/epoch_050.pt` for its highest IS (2.951) and near-best FID (0.0424); Trial 1 remains the lowest-FID run (0.0372).
 - Metric implementation and versions: PyTorch-Ignite 0.5.5; PyTorch 2.9.1+cu128; torchvision 0.24.1+cu128.
 - Real evaluation images: 4,073 held-out images.
 - Generated images: 4,073 for metrics; 64 for the saved visual sample set.
 - Resize / normalization details: model output/real images converted to RGB `[0,1]`, resized to 299×299 for Ignite Inception metrics.
-- Inception Score (mean ± std, if available): 2.684 (Ignite returned a scalar for this run).
-- FID: 0.0372 (Ignite default torchvision Inception/logit feature implementation).
-- Qualitative observations: Trial 1 improves on baseline IS (2.525) and FID (0.0792) under the same protocol; its samples show more varied painterly compositions, with blur and artifacts remaining.
+- Inception Score (mean ± std, if available): Trial 2: 2.9507 (Ignite returned a scalar); Trial 1: 2.684.
+- FID: Trial 2: 0.04236; Trial 1: 0.0372 (lowest among tested runs).
+- Qualitative observations: Trial 1 and Trial 2 show painterly color fields and brush-like textures; both remain blurry, and repeated motifs occur.
 - Limitations / caveats: Ignite's default FID implementation differs from `pytorch-fid`; do not compare the numeric value directly with scores from other FID implementations. The 64×64 input resolution limits fine detail.
 
 ## 7. Write the two-page report
 
-- [ ] Use the required NeurIPS format and stay within two pages (check whether references count toward the limit).
-- [ ] Suggested structure: motivation/data; model and training setup; results; limitations/conclusion.
-- [ ] Include a compact hyperparameter table, generator/discriminator loss plot, generated-image grid, and IS/FID results.
-- [ ] Caption figures with resolution, checkpoint/run, sample count, and evaluation protocol as relevant.
-- [ ] Cite the WikiArt dataset and the metric implementation/tutorial.
-- [ ] Verify that all reported values match saved logs and outputs.
+- [x] Use the NeurIPS 2024 format and stay within two pages, including references.
+- [x] Include data, model/training setup, results, and limitations/conclusion.
+- [x] Include a compact hyperparameter table, generator/discriminator loss plot, generated-image grids, and IS/FID results.
+- [x] Caption figures with run and sample count; state the metric protocol in the text.
+- [x] Cite the WikiArt dataset and the metric implementation/tutorial.
+- [x] Verify reported values against archived evaluations and loss logs.
 
 ### Report findings and results
 
-- Main result:
-- Best configuration and why:
-- What the generated images capture well:
-- Common artifacts or failure modes:
-- What the scores suggest (and do not establish):
-- Limitations:
-- Follow-up experiments:
+- Main result: among six runs, Trial 2 has highest IS (2.9507); Trial 1 has lowest FID (0.0372). Trial 2 is used as the balanced report example.
+- Best configuration and why: Trial 2, batch 64, $\mathrm{lr}_G=2\times10^{-4}$, $\mathrm{lr}_D=5\times10^{-5}$, Adam $(0.5,0.999)$; it combines the highest IS with near-best FID.
+- What the generated images capture well: painterly color fields and coarse textured brush-like patterns.
+- Common artifacts or failure modes: blur, incoherent forms, and repeated motifs at 64×64.
+- What the scores suggest (and do not establish): the lower D learning rate improved the baseline; IS/FID rank these runs under one ImageNet-based protocol but do not establish human-rated artwork quality.
+- Limitations: single seed per configuration, low resolution, ImageNet-domain metric bias, and a compute-limited search.
+- Follow-up experiments: repeated seeds, higher resolution, and G capacity/activation ablations.
+- Report source/PDF: `report/report.tex` and `report/report.pdf`.
 
 ## Final checklist
 
-- [ ] Training script/config and reproducibility details are saved.
-- [ ] Loss curves and final sample grid are saved.
-- [ ] IS/FID scores and evaluation protocol are recorded.
-- [ ] Final checkpoint is saved and identified.
-- [ ] Two-page report is complete and figures are readable.
+- [x] Training script/config and reproducibility details are saved.
+- [x] Loss curves and final sample grids are saved.
+- [x] IS/FID scores and evaluation protocol are recorded.
+- [x] Final checkpoint candidate is identified (Trial 2 epoch 50; checkpoint retained on DSMLP).
+- [x] Two-page report is complete and figures are readable.
