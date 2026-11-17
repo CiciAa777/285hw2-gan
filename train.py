@@ -53,7 +53,10 @@ def main() -> None:
     if generator_updates_per_discriminator < 1:
         raise ValueError("generator_updates_per_discriminator must be at least 1")
 
-    generator = Generator(config["latent_dim"], config["image_size"], config["generator_channels"]).to(device)
+    generator = Generator(
+        config["latent_dim"], config["image_size"], config["generator_channels"],
+        config.get("generator_activation", "relu"),
+    ).to(device)
     discriminator = Discriminator(
         config["image_size"], config["discriminator_channels"],
         spectral_norm=config.get("spectral_norm_discriminator", False),
@@ -144,7 +147,7 @@ def main() -> None:
                     },
                     "config": {k: v for k, v in config.items() if k in {
                         "image_size", "latent_dim", "generator_channels", "discriminator_channels",
-                        "spectral_norm_discriminator", "seed"
+                        "spectral_norm_discriminator", "generator_activation", "seed"
                     }},
                 }
                 torch.save(checkpoint, out / "checkpoints" / f"epoch_{epoch:03d}.pt")

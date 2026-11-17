@@ -179,7 +179,7 @@ Keep the 64x64 data, train/evaluation split, seed, latent size, optimizer settin
 - Trial 5 final training result: 50/50 epochs completed in about 17.6 minutes on a medium-class RTX A5000; final losses D=0.0713, G=5.4023.
 - Trial 5 evaluation: Ignite 0.5.5, 4,073 held-out real and 4,073 generated images at 299x299; IS=2.294966, FID=0.098651. Compared with Trial 2 (IS=2.951, FID=0.0424), spectral normalization worsened both metrics; it improved over Trial 3 but did not beat Trials 1-2.
 - Trial 5 evidence is archived in `results/trial5_sn_d/` and pushed to GitHub. Removed its remote output folder after verifying the archive, recovering about 446 MB; deleted its completed pod. Retain Trial 2's epoch-50 checkpoint as the current model candidate; GAN outputs now use about 91 MB.
-- Current status: Trials 2-5 complete. For a strict 40-minute remaining budget, stop full training runs here; prioritize report writing and use the archived results. Width/depth/activation trials are future work.
+- Current status: Trials 2-5 complete. Proceed with two additional controlled runs from Trial 2: Trial 6 increases only G width from 64 to 96; Trial 7 changes only G hidden activation from ReLU to LeakyReLU(0.2). Both keep seed, data split, batch 64, 50 epochs, optimizer, and D fixed. Save checkpoints at epochs 25 and 50 to balance resume safety and disk use. Run sequentially on one medium GPU; each is expected to take roughly 20-30 minutes including evaluation, not counting queue time. Trial 8 (residual depth) remains deferred.
 
 ## 6. Generate final samples and evaluate
 

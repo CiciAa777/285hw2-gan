@@ -17,20 +17,31 @@ def initialize_weights(module: nn.Module) -> None:
 
 
 class Generator(nn.Module):
-    def __init__(self, latent_dim: int = 100, image_size: int = 64, channels: int = 64):
+    def __init__(
+        self, latent_dim: int = 100, image_size: int = 64, channels: int = 64,
+        activation: str = "relu",
+    ):
         super().__init__()
         if image_size < 16 or image_size & (image_size - 1):
             raise ValueError("image_size must be a power of two and at least 16")
+        if activation not in {"relu", "leaky_relu"}:
+            raise ValueError("generator activation must be 'relu' or 'leaky_relu'")
+
+        def hidden_activation():
+            if activation == "leaky_relu":
+                return nn.LeakyReLU(0.2, inplace=True)
+            return nn.ReLU(True)
+
         stages = image_size.bit_length() - 3  # number of doublings from 4px
         start_channels = channels * min(8, 2 ** (stages - 1))
         layers: list[nn.Module] = [
             nn.ConvTranspose2d(latent_dim, start_channels, 4, 1, 0, bias=False),
-            nn.BatchNorm2d(start_channels), nn.ReLU(True),
+            nn.BatchNorm2d(start_channels), hidden_activation(),
         ]
         current = start_channels
         for stage in range(stages - 1):
             nxt = max(channels, current // 2)
-            layers.extend([nn.ConvTranspose2d(current, nxt, 4, 2, 1, bias=False), nn.BatchNorm2d(nxt), nn.ReLU(True)])
+            layers.extend([nn.ConvTranspose2d(current, nxt, 4, 2, 1, bias=False), nn.BatchNorm2d(nxt), hidden_activation()])
             current = nxt
         layers.extend([nn.ConvTranspose2d(current, 3, 4, 2, 1, bias=False), nn.Tanh()])
         self.net = nn.Sequential(*layers)

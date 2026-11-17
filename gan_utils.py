@@ -51,7 +51,10 @@ def load_generator_checkpoint(path: Path, device: torch.device):
     checkpoint = torch.load(path, map_location=device, weights_only=False)
     from gan_model import Generator
     config = checkpoint["config"]
-    generator = Generator(config["latent_dim"], config["image_size"], config["generator_channels"]).to(device)
+    generator = Generator(
+        config["latent_dim"], config["image_size"], config["generator_channels"],
+        config.get("generator_activation", "relu"),
+    ).to(device)
     generator.load_state_dict(checkpoint["generator"])
     generator.eval()
     return generator, config, checkpoint
