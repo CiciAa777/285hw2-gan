@@ -76,29 +76,30 @@ Trial 2 & $\mathrm{lr}_D=5\times10^{-5}$ & 64 & \textbf{2.951} & .0424 \\
 Trial 3 & Batch-size change from Trial 2 & 32 & 2.118 & .1165 \\
 Trial 4 & Two G updates per D update (Trial 3 base) & 32 & 2.807 & .1631 \\
 Trial 5 & Spectral normalization on D (Trial 2 base) & 64 & 2.295 & .0987 \\
+Trial 6 & G width 96 (Trial 2 base) & 64 & 2.937 & .0419 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Reducing the discriminator learning rate improved the baseline: Trial 1 had the lowest FID, while Trial 2 had the highest IS. Trial 3's smaller batch and Trial 5's spectral normalization both lowered scores relative to Trial 2. Trial 4 raised IS over Trial 3 but had the largest FID, so its 2:1 G:D update ratio gave no consistent gain. Trial 2 is the balanced example checkpoint (highest IS, near-best FID); Trial 1 remains the FID leader. Overall, balancing discriminator strength mattered more than the tested update-ratio and regularization changes.
+Lowering $\mathrm{lr}_D$ improved the baseline: Trial 1 had the lowest FID, and Trial 2 the highest IS. Batch 32 (Trial 3) and discriminator spectral normalization (Trial 5) both reduced scores versus Trial 2. The 2:1 G:D update (Trial 4) raised IS over Trial 3 but had the worst FID. Widening G in Trial 6 doubled its parameters yet gave nearly unchanged scores (2.937/.0419 versus Trial 2's 2.951/.0424); single seeds cannot resolve this tiny difference. Trial 2 is a balanced choice, while Trial 1 remains the FID leader. Overall, the lower D learning rate helped more than the tested batch, update-ratio, regularization, or width changes.
 
 \section{Generated Painting Examples}
-Figure~\ref{fig:samples} shows fixed-noise grids from the two strongest runs by complementary metrics. The outputs capture painterly color fields and textured brush-like patterns, but often blur forms together and repeat motifs. The $64\times64$ resolution limits detail, and the unconditional model does not control style.
+Figure~\ref{fig:samples} compares fixed-noise grids from Trials 2 and 6. Both capture painterly colors and textures but blur forms and repeat motifs; greater G width does not visibly add detail. At $64\times64$, fine detail and style control remain limited.
 \begin{figure}[!ht]
 \centering
 \begin{minipage}{.485\linewidth}\centering
-\includegraphics[width=.86\linewidth]{figures/trial1_grid.png}\\[-1pt]
-{\small (a) Trial 1: best FID}
+\includegraphics[width=.80\linewidth]{figures/trial2_grid.png}\\[-1pt]
+{\small (a) Trial 2: reference}
 \end{minipage}\hfill
 \begin{minipage}{.485\linewidth}\centering
-\includegraphics[width=.86\linewidth]{figures/trial2_grid.png}\\[-1pt]
-{\small (b) Trial 2: best IS}
+\includegraphics[width=.80\linewidth]{figures/trial6_grid.png}\\[-1pt]
+{\small (b) Trial 6: G width 96}
 \end{minipage}
 \caption{64 generated samples per checkpoint, arranged as fixed-noise grids.}
 \label{fig:samples}
 \end{figure}
 
-\paragraph{Limitations.} These metrics are computed once and inherit ImageNet-domain bias; results are not averaged across training seeds. Larger images, repeated seeds, and capacity or activation ablations would clarify whether the observed ranking is robust.
+\paragraph{Limitations.} Single seeds, ImageNet-domain metrics, and $64\times64$ resolution limit conclusions. Repeated seeds, larger images, and activation/depth ablations remain useful follow-ups.
 
 \begin{thebibliography}{5}
 \footnotesize

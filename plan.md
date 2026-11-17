@@ -111,8 +111,8 @@ Trial 1 findings: 50 epochs took 16.9 minutes (60,400 optimizer steps). Final ep
 | Trial 3 | Batch size 32; all other settings match Trial 2 | 50 | Removed after archiving evidence to `results/trial3_batch32/` | 2.118 | 0.1165 | Repetitive green/gray motifs; worse than Trial 2 |
 | Trial 4 | 2 generator updates per 1 discriminator update; all other settings match Trial 3 | 50 | Removed after archiving evidence to `results/trial4_g2d1/` | 2.807 | 0.1631 | Higher IS than Trial 3, but worse FID; several repeated motifs |
 | Trial 5 | Spectral normalization on D only; same settings as Trial 2 | 50 | Archived in `results/trial5_sn_d/`; remote checkpoint removed after archival | 2.295 | 0.0987 | Better than Trial 3 on both metrics; below Trials 1-2; repeated vertical white forms |
-| Trial 6 | Increase G width from 64 to 96 channels; D unchanged; parent selected by results | Planned: 50 | Pending | Pending | Pending | Generator capacity experiment |
-| Trial 7 | Change G hidden activation from ReLU to LeakyReLU(0.2); parent selected by results | Planned: 50 | Pending | Pending | Pending | Activation experiment |
+| Trial 6 | Increase G width from 64 to 96 channels; D unchanged from Trial 2 | 50 | Archived in `results/trial6_g_width96/` | 2.937 | 0.0419 | Essentially tied with Trial 2; no clear gain from wider G |
+| Trial 7 | Change G hidden activation from ReLU to LeakyReLU(0.2); Trial 2 settings | Stopped at epoch 4; no checkpoint | No completed run | N/A | N/A | Interrupted by user before completion; no evaluation |
 | Trial 8 | Add one residual block at 16x16 in G and D; optional if time allows | Planned: 50 | Pending | Pending | Pending | Depth experiment; implement only after earlier comparisons |
 
 ### Proposed follow-up experiments
@@ -121,7 +121,7 @@ Keep the 64x64 data, train/evaluation split, seed, latent size, optimizer settin
 
 1. **Trial 4 — update ratio.** Add a `generator_updates_per_discriminator` config setting, keep it at 1 for old trials, and set it to 2 for Trial 4. This gives G two optimizer steps for each D step. Keep all Trial 3 settings otherwise, so the update ratio is the only change. Trials 2-3 show low D loss and rising G loss; this is a targeted hypothesis, and the scores and sample grid decide whether it helps. Do not use the common WGAN-GP five-critic-step ratio with the current BCE DCGAN, because that belongs to a different objective and could make this discriminator stronger still.
 2. **Trial 5 — discriminator spectral normalization (completed).** Applied spectral normalization to D's convolution layers only, keeping the Trial 2 settings otherwise unchanged. It did not improve IS/FID over Trials 1-2; see the Trial 5 results above and archived artifacts in `results/trial5_sn_d/`. See Miyato et al., [Spectral Normalization for GANs](https://arxiv.org/abs/1802.05957).
-3. **Trial 6 — generator width.** Increase only `generator_channels` from 64 to 96; keep D at 64. This tests G capacity without simultaneously strengthening D. If memory or stability is poor, stop and use 80 channels as a follow-up rather than changing several settings at once.
+3. **Trial 6 — generator width (completed).** Increased only `generator_channels` from 64 to 96, keeping D at 64 and otherwise matching Trial 2. IS/FID were 2.937/0.04191 versus Trial 2's 2.951/0.04236, a negligible metric difference without repeated seeds; the wider G did not show a clear gain.
 4. **Trial 7 — generator activation.** Replace hidden G ReLU activations with LeakyReLU(0.2), keeping D's LeakyReLU and all widths fixed. Keep the final `tanh` output and image normalization unchanged. DCGAN's original architecture uses ReLU in G and LeakyReLU in D, so treat this as an empirical comparison rather than an assumed improvement; see [Radford et al.](https://arxiv.org/abs/1511.06434).
 5. **Trial 8 — depth (optional).** Add one residual block at the 16x16 feature-map stage in both G and D, keeping widths fixed. This tests added depth as one matched architecture change. It will require a separate architecture version in checkpoints so evaluation reconstructs the correct model.
 
@@ -179,7 +179,11 @@ Keep the 64x64 data, train/evaluation split, seed, latent size, optimizer settin
 - Trial 5 final training result: 50/50 epochs completed in about 17.6 minutes on a medium-class RTX A5000; final losses D=0.0713, G=5.4023.
 - Trial 5 evaluation: Ignite 0.5.5, 4,073 held-out real and 4,073 generated images at 299x299; IS=2.294966, FID=0.098651. Compared with Trial 2 (IS=2.951, FID=0.0424), spectral normalization worsened both metrics; it improved over Trial 3 but did not beat Trials 1-2.
 - Trial 5 evidence is archived in `results/trial5_sn_d/` and pushed to GitHub. Removed its remote output folder after verifying the archive, recovering about 446 MB; deleted its completed pod. Retain Trial 2's epoch-50 checkpoint as the current model candidate; GAN outputs now use about 91 MB.
-- Current status: Trials 2-5 complete. Proceed with two additional controlled runs from Trial 2: Trial 6 increases only G width from 64 to 96; Trial 7 changes only G hidden activation from ReLU to LeakyReLU(0.2). Both keep seed, data split, batch 64, 50 epochs, optimizer, and D fixed. Save checkpoints at epochs 25 and 50 to balance resume safety and disk use. Run sequentially on one medium GPU; each is expected to take roughly 20-30 minutes including evaluation, not counting queue time. Trial 8 (residual depth) remains deferred.
+- Trial 6 final training result: 50/50 epochs in 16.8 minutes on a medium-class RTX A5000; final losses D=0.3699, G=3.5548. Checkpoints were saved at epochs 25 and 50.
+- Trial 6 evaluation: Ignite 0.5.5, 4,073 held-out real and generated images at 299×299; IS=2.936973, FID=0.041910. Relative to Trial 2, IS decreased by 0.0138 and FID improved by 0.00045; these single-seed differences are too small to establish a reliable improvement.
+- Trial 6 evidence is archived in `results/trial6_g_width96/`.
+- Trial 7 stop: the batch script automatically began the activation run after Trial 6 evaluation, reaching epoch 4. The pod was deleted after the user's instruction to stop; no complete run, checkpoint, or metric result was produced. Do not count this partial attempt as a completed trial.
+- Current status: Trials 2-6 complete; Trial 7 stopped before completion. The generator-width comparison did not materially improve Trial 2. Resume the activation/depth ablations only if time permits and explicitly requested.
 
 ## 6. Generate final samples and evaluate
 
@@ -213,13 +217,13 @@ Keep the 64x64 data, train/evaluation split, seed, latent size, optimizer settin
 
 ### Report findings and results
 
-- Main result: among six runs, Trial 2 has highest IS (2.9507); Trial 1 has lowest FID (0.0372). Trial 2 is used as the balanced report example.
+- Main result: among seven complete configurations (baseline plus Trials 1-6), Trial 2 has highest IS (2.9507); Trial 1 has lowest FID (0.0372). Trial 6 is effectively tied with Trial 2 but does not establish a width benefit. Trial 2 is used as the balanced report example.
 - Best configuration and why: Trial 2, batch 64, $\mathrm{lr}_G=2\times10^{-4}$, $\mathrm{lr}_D=5\times10^{-5}$, Adam $(0.5,0.999)$; it combines the highest IS with near-best FID.
 - What the generated images capture well: painterly color fields and coarse textured brush-like patterns.
 - Common artifacts or failure modes: blur, incoherent forms, and repeated motifs at 64×64.
 - What the scores suggest (and do not establish): the lower D learning rate improved the baseline; IS/FID rank these runs under one ImageNet-based protocol but do not establish human-rated artwork quality.
 - Limitations: single seed per configuration, low resolution, ImageNet-domain metric bias, and a compute-limited search.
-- Follow-up experiments: repeated seeds, higher resolution, and G capacity/activation ablations.
+- Follow-up experiments: repeated seeds, higher resolution, and the deferred G activation/depth ablations.
 - Report source/PDF: `report/report.tex` and `report/report.pdf`.
 
 ## Final checklist
