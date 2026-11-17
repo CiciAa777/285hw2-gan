@@ -109,7 +109,7 @@ Trial 1 findings: 50 epochs took 16.9 minutes (60,400 optimizer steps). Final ep
 | Trial 1 | D learning rate 0.0001; all else unchanged | 50 | `outputs/trial1_lr_d_1e4/checkpoints/epoch_050.pt` | 2.684 | 0.0372 | More varied painterly compositions; still blurry, but less repetitive than baseline |
 | Trial 2 | D learning rate 0.00005; all else unchanged from Trial 1 | 50 | `outputs/trial2_lr_d_5e5/checkpoints/epoch_050.pt` | 2.951 | 0.0424 | Better IS than Trial 1; FID slightly worse; inspect grid alongside metrics |
 | Trial 3 | Batch size 32; all other settings match Trial 2 | 50 | `outputs/trial3_batch32/checkpoints/epoch_050.pt` | 2.118 | 0.1165 | Worse than Trial 2; losses indicate D dominance; inspect grid |
-| Trial 4 | 2 generator updates per 1 discriminator update; all other settings match Trial 3 | Interrupted at epoch 31; resuming | `outputs/trial4_g2d1/checkpoints/latest.pt` (epoch 30) | Pending | Pending | Medium GPU run stopped by account quota |
+| Trial 4 | 2 generator updates per 1 discriminator update; all other settings match Trial 3 | Resumed at epoch 31/50 | `outputs/trial4_g2d1/checkpoints/latest.pt` (epoch 30) | Pending | Pending | Medium-class GPU; metrics pending |
 | Trial 5 | Spectral normalization on D only; parent chosen from Trials 3-4 | Planned: 50 | Pending | Pending | Pending | Regularization/stability experiment |
 | Trial 6 | Increase G width from 64 to 96 channels; D unchanged; parent selected by results | Planned: 50 | Pending | Pending | Pending | Generator capacity experiment |
 | Trial 7 | Change G hidden activation from ReLU to LeakyReLU(0.2); parent selected by results | Planned: 50 | Pending | Pending | Pending | Activation experiment |
@@ -171,7 +171,8 @@ Keep the 64x64 data, train/evaluation split, seed, latent size, optimizer settin
 - Trial 4 medium-GPU run launched 2026-11-16 about 20:38 PST as pod `xix015-2792513` on `its-dsmlp-n54.ucsd.edu`. The RTX PRO 6000 Blackwell MIG passed CUDA preflight. Initial progress: epoch 1 D=2.1033, mean G=0.8658; the 2:1 G:D setting was active.
 - Trial 4 first attempt: pod failed around epoch 31 with `OSError: [Errno 122] Disk quota exceeded` while flushing loss logs. The last resumable checkpoint is `latest.pt` at epoch 30; no Trial 4 metrics are available yet.
 - After the 803 MB GAN-checkpoint cleanup, `run_trial4_batch.sh` now resumes from `latest.pt` when present, preserving optimizer/RNG state and appending losses. The loss CSV ends at epoch 30, matching the resume point.
-- Current status: Trials 2 and 3 training/evaluation are complete. Trial 4 is ready to resume from epoch 30 on medium GPU; verify the cleanup resolved quota pressure before considering later experiments.
+- Trial 4 resumed 2026-11-16 about 21:12 PST in pod `xix015-2829602` on a medium-class RTX A5000 node. CUDA preflight passed, the launcher loaded `latest.pt` at epoch 30, and the output directory was about 80 MB at resume. Monitor the next checkpoint save to confirm quota recovery.
+- Current status: Trials 2 and 3 training/evaluation are complete. Trial 4 is continuing from epoch 31/50; do not queue another experiment until it finishes and its metrics are recorded.
 
 ## 6. Generate final samples and evaluate
 
