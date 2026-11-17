@@ -171,8 +171,8 @@ Keep the 64x64 data, train/evaluation split, seed, latent size, optimizer settin
 - Trial 4 medium-GPU run launched 2026-11-16 about 20:38 PST as pod `xix015-2792513` on `its-dsmlp-n54.ucsd.edu`. The RTX PRO 6000 Blackwell MIG passed CUDA preflight. Initial progress: epoch 1 D=2.1033, mean G=0.8658; the 2:1 G:D setting was active.
 - Trial 4 first attempt: pod failed around epoch 31 with `OSError: [Errno 122] Disk quota exceeded` while flushing loss logs. The last resumable checkpoint is `latest.pt` at epoch 30; no Trial 4 metrics are available yet.
 - After the 803 MB GAN-checkpoint cleanup, `run_trial4_batch.sh` now resumes from `latest.pt` when present, preserving optimizer/RNG state and appending losses. The loss CSV ends at epoch 30, matching the resume point.
-- Trial 4 resumed 2026-11-16 about 21:12 PST in pod `xix015-2829602` on a medium-class RTX A5000 node. CUDA preflight passed and the launcher loaded `latest.pt` at epoch 30. It reached epoch 40 and saved that checkpoint; at epoch 43 its output directory was about 154 MB, with no further quota errors.
-- Current status: Trials 2 and 3 training/evaluation are complete. Trial 4 is at epoch 43/50; finish evaluation before queueing another experiment.
+- Trial 4 resumed 2026-11-16 about 21:12 PST in pod `xix015-2829602` on a medium-class RTX A5000 node. CUDA preflight passed and the launcher loaded `latest.pt` at epoch 30. It reached epoch 40 and saved that checkpoint; at epoch 47 its output directory was about 155 MB, with no further quota errors.
+- Current status: Trials 2 and 3 training/evaluation are complete. Trial 4 is at epoch 47/50; finish evaluation before queueing another experiment.
 
 ## 6. Generate final samples and evaluate
 
