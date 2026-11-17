@@ -52,7 +52,13 @@ torch.cuda.synchronize()
 print("CUDA kernel smoke check: passed")
 PY
 
-python -u train.py --config "$RUNTIME_CONFIG" --device cuda:0
+RESUME_CHECKPOINT="$OUTPUT_DIR/checkpoints/latest.pt"
+if [[ -f "$RESUME_CHECKPOINT" ]]; then
+  echo "Resuming Trial 4 from $RESUME_CHECKPOINT"
+  python -u train.py --config "$RUNTIME_CONFIG" --device cuda:0 --resume "$RESUME_CHECKPOINT"
+else
+  python -u train.py --config "$RUNTIME_CONFIG" --device cuda:0
+fi
 python plot_losses.py \
   --input "$OUTPUT_DIR/logs/losses.csv" \
   --output "$OUTPUT_DIR/loss_curves.png"
