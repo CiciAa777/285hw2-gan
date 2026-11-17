@@ -54,7 +54,10 @@ def main() -> None:
         raise ValueError("generator_updates_per_discriminator must be at least 1")
 
     generator = Generator(config["latent_dim"], config["image_size"], config["generator_channels"]).to(device)
-    discriminator = Discriminator(config["image_size"], config["discriminator_channels"]).to(device)
+    discriminator = Discriminator(
+        config["image_size"], config["discriminator_channels"],
+        spectral_norm=config.get("spectral_norm_discriminator", False),
+    ).to(device)
     generator.apply(initialize_weights)
     discriminator.apply(initialize_weights)
     optimizer_g = torch.optim.Adam(generator.parameters(), lr=config["learning_rate_g"], betas=(config["adam_beta1"], config["adam_beta2"]))
@@ -140,7 +143,8 @@ def main() -> None:
                         "cuda": torch.cuda.get_rng_state_all() if torch.cuda.is_available() else None,
                     },
                     "config": {k: v for k, v in config.items() if k in {
-                        "image_size", "latent_dim", "generator_channels", "discriminator_channels", "seed"
+                        "image_size", "latent_dim", "generator_channels", "discriminator_channels",
+                        "spectral_norm_discriminator", "seed"
                     }},
                 }
                 torch.save(checkpoint, out / "checkpoints" / f"epoch_{epoch:03d}.pt")
