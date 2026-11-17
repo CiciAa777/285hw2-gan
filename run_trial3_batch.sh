@@ -6,7 +6,7 @@ OUTPUT_DIR="outputs/trial3_batch32"
 mkdir -p "$OUTPUT_DIR"
 exec > >(tee -a "$OUTPUT_DIR/batch_console.log") 2>&1
 
-echo "Trial 3 GPU batch started: $(date -Is)"
+echo "Trial 3 medium-GPU batch started: $(date -Is)"
 echo "Project: $PWD"
 nvidia-smi
 
@@ -21,20 +21,20 @@ config = json.loads(Path(source).read_text(encoding="utf-8"))
 project = Path.home() / "private/285hw2-gan/project"
 config["dataset_root"] = str(Path.home() / "private/285hw2-gan/wikiart/versions/1")
 config["output_dir"] = str(project / output_dir)
+config["save_every_epochs"] = 10
 if not Path(config["dataset_root"]).is_dir():
     raise SystemExit(f"Dataset directory not found: {config['dataset_root']}")
 Path(destination).write_text(json.dumps(config, indent=2), encoding="utf-8")
 print("Dataset:", config["dataset_root"])
 print("Output:", config["output_dir"])
+print("Checkpoint interval:", config["save_every_epochs"])
 PY
 
-if [[ ! -x ../.venv_trial3/bin/python ]]; then
-  python -m venv --system-site-packages ../.venv_trial3
+if [[ ! -x ../.venv_trial3_gpu/bin/python ]]; then
+  python -m venv --system-site-packages ../.venv_trial3_gpu
 fi
-source ../.venv_trial3/bin/activate
-# Use the image's PyTorch 2.2/CUDA 12.1 build, which supports the small
-# Pascal-class GTX 1080 Ti; ignore the newer user-site PyTorch 2.9 build.
-export PYTHONNOUSERSITE=1
+source ../.venv_trial3_gpu/bin/activate
+# Reuse the CUDA-enabled PyTorch user-site build that passed on medium Blackwell.
 python -m pip install -r requirements.txt
 
 python - <<'PY'
@@ -64,4 +64,4 @@ python evaluate.py \
   --config "$RUNTIME_CONFIG" \
   --checkpoint "$OUTPUT_DIR/checkpoints/epoch_050.pt" \
   --num-images 4073 --batch-size 32 --device cuda:0
-echo "Trial 3 GPU batch completed: $(date -Is)"
+echo "Trial 3 medium-GPU batch completed: $(date -Is)"
