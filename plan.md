@@ -108,7 +108,7 @@ Trial 1 findings: 50 epochs took 16.9 minutes (60,400 optimizer steps). Final ep
 | Baseline | DCGAN defaults | 50 | `outputs/checkpoints/epoch_050.pt` | 2.525 | 0.0792 | Blurry painterly textures; repeated compositions; D appears dominant late |
 | Trial 1 | D learning rate 0.0001; all else unchanged | 50 | `outputs/trial1_lr_d_1e4/checkpoints/epoch_050.pt` | 2.684 | 0.0372 | More varied painterly compositions; still blurry, but less repetitive than baseline |
 | Trial 2 | D learning rate 0.00005; all else unchanged from Trial 1 | 50 | `outputs/trial2_lr_d_5e5/checkpoints/epoch_050.pt` | 2.951 | 0.0424 | Better IS than Trial 1; FID slightly worse; inspect grid alongside metrics |
-| Trial 3 | Batch size 32; all other settings match Trial 2 | Planned: 50 | Pending | Pending | Pending | Medium GPU run planned |
+| Trial 3 | Batch size 32; all other settings match Trial 2 | Running: 50 | `outputs/trial3_batch32/checkpoints/` (saving every 10 epochs) | Pending | Pending | Medium GPU run; metrics pending |
 
 ### Trial 2 pre-run record
 
@@ -143,7 +143,8 @@ Trial 1 findings: 50 epochs took 16.9 minutes (60,400 optimizer steps). Final ep
 - Comparison: Trial 2 improves IS over Trial 1 (2.684 to 2.951), while FID is slightly higher (0.0372 to 0.0424); both FID scores remain below the baseline's 0.0792. Trial 1 remains the best FID run so far. Review the generated grid before making a visual quality claim.
 - Cleanup/storage follow-up: deleting the failed CPU run's partial checkpoints freed about 1.1 GB. Medium Trial 2 then wrote its checkpoint set and evaluation output successfully. Preserve the dataset and prior GAN results; use a 10-epoch checkpoint interval for Trial 3 as well.
 - Trial 3 compatibility retry on 2026-11-16 12:22 PST: pod `xix015-2155027` used the image's base PyTorch 2.2.1+cu121 / torchvision 0.17.1+cu121, with user-site packages disabled and a CUDA kernel preflight. That generic small-GPU attempt is obsolete for medium Blackwell, which requires the newer CUDA-enabled PyTorch environment used by Trial 2.
-- Current status: Trial 2 training and evaluation are complete. Trial 3 keeps batch size 32 and Trial 2's D learning rate; target the medium GPU and save every 10 epochs.
+- Trial 3 medium-GPU run launched 2026-11-16 about 19:48 PST as pod `xix015-2693436` on `its-dsmlp-n54.ucsd.edu`. It uses batch size 32, Trial 2's D learning rate (5e-5), all other Trial 2 settings unchanged, and checkpoints every 10 epochs. PyTorch 2.9.1+cu128 / torchvision 0.24.1+cu128 passed the CUDA kernel check on the RTX PRO 6000 Blackwell MIG (capability 12.0). Initial progress: epoch 1 D=1.3953, G=1.4562; output directory 2.8 MB and Trial 3 venv 20 MB.
+- Current status: Trial 2 training and evaluation are complete. Trial 3 is running on medium GPU pod `xix015-2693436`; monitor its checkpoint writes and evaluation results.
 
 ## 6. Generate final samples and evaluate
 
