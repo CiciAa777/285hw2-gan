@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-PROJECT="$HOME/private/285hw2-gan/project"
+PROJECT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DATASET="$HOME/private/285hw2-gan/wikiart/versions/1"
 cd "$PROJECT"
 
