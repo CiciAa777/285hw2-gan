@@ -1,0 +1,12 @@
+{
+  "checkpoint": "outputs/trial2_lr_d_5e5/checkpoints/epoch_050.pt",
+  "epoch": 50,
+  "num_real": 4073,
+  "num_generated": 4073,
+  "image_size": 64,
+  "metric_input_size": 299,
+  "fid": 0.042358046704323915,
+  "inception_score": 2.9507481941331517,
+  "ignite_version": "0.5.5",
+  "device": "cuda:0"
+}

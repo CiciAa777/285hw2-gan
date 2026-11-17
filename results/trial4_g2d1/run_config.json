@@ -1,0 +1,21 @@
+{
+  "dataset_root": "/home/xix015/private/285hw2-gan/wikiart/versions/1",
+  "output_dir": "/home/xix015/private/285hw2-gan/project/outputs/trial4_g2d1",
+  "image_size": 64,
+  "latent_dim": 100,
+  "generator_channels": 64,
+  "discriminator_channels": 64,
+  "batch_size": 32,
+  "epochs": 50,
+  "learning_rate_g": 0.0002,
+  "learning_rate_d": 5e-05,
+  "adam_beta1": 0.5,
+  "adam_beta2": 0.999,
+  "generator_updates_per_discriminator": 2,
+  "train_fraction": 0.95,
+  "seed": 42,
+  "num_workers": 4,
+  "save_every_epochs": 10,
+  "horizontal_flip": false,
+  "device": "cuda:0"
+}
